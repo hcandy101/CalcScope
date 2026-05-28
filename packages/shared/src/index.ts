@@ -4,7 +4,8 @@ export const API_ROUTES = {
   health: "/health",
   auth: {
     register: "/auth/register",
-    login: "/auth/login"
+    login: "/auth/login",
+    me: "/auth/me"
   }
 } as const;
 

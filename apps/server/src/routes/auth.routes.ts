@@ -1,9 +1,10 @@
 import { Router } from "express";
-import { login, register } from "../controllers/auth.controller.js";
+import { login, me, register } from "../controllers/auth.controller.js";
+import { requireAuth } from "../middleware/auth.middleware.js";
 
 export const authRouter = Router();
 
-// These routes define the public auth surface now. The real bcrypt/JWT logic
-// will be added behind the controller/service boundary in a later feature.
+// Public routes create tokens. Protected routes require Authorization: Bearer <token>.
 authRouter.post("/register", register);
 authRouter.post("/login", login);
+authRouter.get("/me", requireAuth, me);

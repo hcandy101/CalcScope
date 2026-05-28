@@ -1,6 +1,6 @@
 # CalcScope
 
-CalcScope is an interactive calculus graphing platform. This repository is only the initial foundation: authentication, graphing, saving graphs, and calculus logic are intentionally placeholders for later commits.
+CalcScope is an interactive calculus graphing platform. This repository is an early foundation: the backend now includes beginner-friendly JWT authentication, while graphing, saving graphs, and calculus logic are still placeholders for later commits.
 
 ## Folder Structure
 
@@ -30,8 +30,8 @@ This project uses a monorepo because CalcScope has a frontend, backend, and shar
 - React handles the user interface.
 - Express exposes API endpoints.
 - PostgreSQL stores users and saved graphs later.
-- JWT will authenticate API requests later.
-- bcrypt will hash passwords later.
+- JWT authenticates protected API requests.
+- bcrypt hashes user passwords before they are stored.
 - Shared code is limited to stable contracts, not business logic.
 
 The current setup avoids implementing auth, graphing, and calculus so the foundation stays easy to understand.
@@ -48,18 +48,34 @@ The current setup avoids implementing auth, graphing, and calculus so the founda
 
 ## Authentication Flow
 
-Authentication is only scaffolded right now.
-
-Planned flow:
-
 1. User submits email and password from the frontend.
 2. Backend validates the request body.
-3. Backend finds the user in PostgreSQL.
-4. bcrypt compares the submitted password with the stored password hash.
+3. Registration hashes the password with bcrypt and stores only `password_hash` in PostgreSQL.
+4. Login finds the user by email and uses bcrypt to compare the submitted password with the stored hash.
 5. Backend signs a JWT when credentials are valid.
-6. Frontend stores the token in memory or another chosen strategy.
-7. Future protected requests include `Authorization: Bearer <token>`.
+6. Frontend stores the token in `localStorage` so a page refresh can restore the session.
+7. Protected requests include `Authorization: Bearer <token>`.
 8. Auth middleware verifies the token before protected controllers run.
+
+This is stateless JWT authentication. The backend does not keep a server-side
+login session for each user; instead, every protected request proves who the user
+is by sending a signed token. Signing out removes the saved token from the
+browser. If the token is missing, invalid, or expired, the frontend sends the user
+back to the login/register view.
+
+Available auth routes:
+
+```text
+POST /api/auth/register
+POST /api/auth/login
+GET /api/auth/me
+```
+
+Run the users table migration before using auth:
+
+```powershell
+psql $env:DATABASE_URL -f apps/server/migrations/001_create_users.sql
+```
 
 ## Frontend and Backend Communication
 
@@ -75,9 +91,10 @@ The backend exposes routes under `/api`, such as:
 GET /api/health
 POST /api/auth/register
 POST /api/auth/login
+GET /api/auth/me
 ```
 
-The auth routes currently return placeholder responses so the architecture is visible without hiding a full auth implementation inside the first commit.
+The `/api/auth/me` route is protected and requires a valid JWT in the `Authorization` header.
 
 ## Environment Variables
 

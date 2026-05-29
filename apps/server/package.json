@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
+    "db:check": "tsx src/scripts/check-db.ts",
+    "db:migrate": "tsx src/scripts/migrate.ts",
     "build": "tsc -p tsconfig.json",
     "start": "node dist/index.js",
     "typecheck": "tsc -p tsconfig.json --noEmit"

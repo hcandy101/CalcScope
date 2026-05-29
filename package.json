@@ -10,6 +10,9 @@
   "scripts": {
     "dev:client": "npm --workspace apps/client run dev",
     "dev:server": "npm --workspace apps/server run dev",
+    "db:up": "docker compose up -d postgres",
+    "db:check": "npm --workspace apps/server run db:check",
+    "db:migrate": "npm --workspace apps/server run db:migrate",
     "build:client": "npm --workspace apps/client run build",
     "build:server": "npm --workspace apps/server run build",
     "typecheck": "npm --workspaces run typecheck"

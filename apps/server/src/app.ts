@@ -6,10 +6,20 @@ import { healthRouter } from "./routes/health.routes.js";
 
 export const app = express();
 
+function isAllowedOrigin(origin: string | undefined): boolean {
+  if (!origin) {
+    return true;
+  }
+
+  return env.clientUrls.includes(origin);
+}
+
 // CORS keeps the browser app and API separated while still allowing local dev.
 app.use(
   cors({
-    origin: env.clientUrl,
+    origin(origin, callback) {
+      callback(null, isAllowedOrigin(origin));
+    },
     credentials: true
   })
 );

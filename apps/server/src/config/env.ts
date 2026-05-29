@@ -16,5 +16,8 @@ export const env = {
   port: Number(process.env.PORT ?? 4000),
   databaseUrl: required("DATABASE_URL"),
   jwtSecret: required("JWT_SECRET"),
-  clientUrl: process.env.CLIENT_URL ?? "http://localhost:5173"
+  clientUrls: (process.env.CLIENT_URLS ?? process.env.CLIENT_URL ?? "http://localhost:5175")
+    .split(",")
+    .map((url) => url.trim())
+    .filter(Boolean)
 };

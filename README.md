@@ -74,7 +74,7 @@ GET /api/auth/me
 Run the users table migration before using auth:
 
 ```powershell
-psql $env:DATABASE_URL -f apps/server/migrations/001_create_users.sql
+npm run db:migrate
 ```
 
 ## Frontend and Backend Communication
@@ -105,12 +105,19 @@ Copy-Item apps/server/.env.example apps/server/.env
 Copy-Item apps/client/.env.example apps/client/.env
 ```
 
+Local `.env` files are already ignored by Git. For first-time development, this
+repo expects PostgreSQL at:
+
+```env
+postgresql://postgres:postgres@localhost:5432/calcscope
+```
+
 Server variables:
 
 - `PORT`: Express port.
 - `DATABASE_URL`: PostgreSQL connection string.
 - `JWT_SECRET`: Secret used later to sign JWTs.
-- `CLIENT_URL`: Frontend URL allowed by CORS.
+- `CLIENT_URLS`: Comma-separated frontend URLs allowed by CORS.
 
 Client variables:
 
@@ -122,6 +129,30 @@ Install dependencies from the repository root:
 
 ```powershell
 npm install
+```
+
+If PowerShell blocks `npm.ps1` on Windows, use `npm.cmd` for the same commands:
+
+```powershell
+npm.cmd install
+```
+
+Start PostgreSQL with Docker:
+
+```powershell
+npm run db:up
+```
+
+Create the database tables:
+
+```powershell
+npm run db:migrate
+```
+
+Confirm the API can connect to PostgreSQL:
+
+```powershell
+npm run db:check
 ```
 
 Run the backend:
@@ -138,7 +169,7 @@ npm run dev:client
 
 Default local URLs:
 
-- Frontend: `http://localhost:5173`
+- Frontend: `http://localhost:5175`
 - Backend: `http://localhost:4000`
 - Health check: `http://localhost:4000/api/health`
 

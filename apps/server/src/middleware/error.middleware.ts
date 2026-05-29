@@ -1,4 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
+import { GraphError } from "../services/graph.service.js";
 import { AuthError } from "../services/auth.service.js";
 
 export function notFoundHandler(req: Request, res: Response) {
@@ -17,6 +18,11 @@ export function errorHandler(
   }
 
   if (error instanceof AuthError) {
+    res.status(error.statusCode).json({ message: error.message });
+    return;
+  }
+
+  if (error instanceof GraphError) {
     res.status(error.statusCode).json({ message: error.message });
     return;
   }

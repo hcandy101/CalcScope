@@ -1,7 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
-import jwt from "jsonwebtoken";
-import { env } from "../config/env.js";
-import type { AuthTokenPayload } from "../services/auth.service.js";
+import { verifyAuthToken } from "../services/auth.service.js";
 
 export function requireAuth(req: Request, res: Response, next: NextFunction) {
   const authHeader = req.get("Authorization");
@@ -14,12 +12,7 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
   const token = authHeader.slice("Bearer ".length);
 
   try {
-    const decoded = jwt.verify(token, env.jwtSecret) as jwt.JwtPayload & AuthTokenPayload;
-
-    if (!decoded.sub || !decoded.email) {
-      res.status(401).json({ message: "Invalid authentication token." });
-      return;
-    }
+    const decoded = verifyAuthToken(token);
 
     req.user = {
       id: decoded.sub,

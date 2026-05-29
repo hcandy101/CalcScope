@@ -12,3 +12,19 @@ export const API_ROUTES = {
 export type ApiMessage = {
   message: string;
 };
+
+export type AuthUser = {
+  id: string;
+  email: string;
+  name: string | null;
+  createdAt: string;
+};
+
+export type AuthResponse = {
+  user: AuthUser;
+  token: string;
+};
+
+export type CurrentUserResponse = {
+  user: AuthUser;
+};

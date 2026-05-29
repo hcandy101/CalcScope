@@ -1,6 +1,7 @@
 import cors from "cors";
 import express from "express";
 import { env } from "./config/env.js";
+import { errorHandler, notFoundHandler } from "./middleware/error.middleware.js";
 import { authRouter } from "./routes/auth.routes.js";
 import { healthRouter } from "./routes/health.routes.js";
 
@@ -29,3 +30,6 @@ app.use(express.json());
 // All API routes live under /api so the frontend has one predictable base URL.
 app.use("/api/health", healthRouter);
 app.use("/api/auth", authRouter);
+
+app.use(notFoundHandler);
+app.use(errorHandler);

@@ -1,6 +1,6 @@
 # CalcScope
 
-CalcScope is an interactive calculus graphing platform. This repository is an early foundation: the backend now includes beginner-friendly JWT authentication, while graphing, saving graphs, and calculus logic are still placeholders for later commits.
+CalcScope is an interactive calculus graphing platform. This repository is an early foundation: authentication is implemented with React, Express, PostgreSQL, JWTs, and bcrypt, while graphing, saving graphs, and calculus logic are still placeholders for later commits.
 
 ## Folder Structure
 
@@ -34,7 +34,7 @@ This project uses a monorepo because CalcScope has a frontend, backend, and shar
 - bcrypt hashes user passwords before they are stored.
 - Shared code is limited to stable contracts, not business logic.
 
-The current setup avoids implementing auth, graphing, and calculus so the foundation stays easy to understand.
+The current setup implements only authentication and leaves graphing/calculus work for later so the foundation stays easy to understand.
 
 ## Request Flow
 
@@ -70,6 +70,14 @@ POST /api/auth/register
 POST /api/auth/login
 GET /api/auth/me
 ```
+
+Frontend auth files:
+
+- `apps/client/src/services/authApi.ts`: calls backend auth endpoints.
+- `apps/client/src/context/AuthContext.tsx`: stores the current user in React state and restores sessions from `localStorage`.
+- `apps/client/src/components/ProtectedRoute.tsx`: blocks protected UI unless a valid user is loaded.
+- `apps/client/src/pages/LoginPage.tsx` and `RegisterPage.tsx`: collect credentials and call the auth context.
+- `apps/client/src/lib/authSession.ts`: owns the `localStorage` token key.
 
 Run the users table migration before using auth:
 
@@ -190,6 +198,31 @@ Suggested first commit message:
 
 ```text
 chore: scaffold CalcScope monorepo foundation
+```
+
+## Auth Commit
+
+Commit the authentication work together because the backend routes, database migration, shared response types, frontend API layer, and protected UI depend on each other:
+
+- `apps/server/migrations/001_create_users.sql`
+- `apps/server/src/config/*`
+- `apps/server/src/controllers/auth.controller.ts`
+- `apps/server/src/middleware/*`
+- `apps/server/src/routes/auth.routes.ts`
+- `apps/server/src/services/auth.service.ts`
+- `apps/server/src/types/express.d.ts`
+- `apps/client/src/context/AuthContext.tsx`
+- `apps/client/src/components/ProtectedRoute.tsx`
+- `apps/client/src/pages/*`
+- `apps/client/src/services/authApi.ts`
+- `apps/client/src/lib/*`
+- `packages/shared/src/index.ts`
+- `README.md`
+
+Suggested commit message:
+
+```text
+refactor: organize auth flow and error handling
 ```
 
 ## What `.gitignore` Should Ignore

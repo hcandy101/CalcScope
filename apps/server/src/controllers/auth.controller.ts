@@ -1,35 +1,25 @@
-import type { Request, Response } from "express";
-import { AuthError, getUserById, loginUser, registerUser } from "../services/auth.service.js";
+import type { NextFunction, Request, Response } from "express";
+import { getUserById, loginUser, registerUser } from "../services/auth.service.js";
 
-function handleAuthError(error: unknown, res: Response) {
-  if (error instanceof AuthError) {
-    res.status(error.statusCode).json({ message: error.message });
-    return;
-  }
-
-  console.error(error);
-  res.status(500).json({ message: "Something went wrong." });
-}
-
-export async function register(req: Request, res: Response) {
+export async function register(req: Request, res: Response, next: NextFunction) {
   try {
     const result = await registerUser(req.body);
     res.status(201).json(result);
   } catch (error) {
-    handleAuthError(error, res);
+    next(error);
   }
 }
 
-export async function login(req: Request, res: Response) {
+export async function login(req: Request, res: Response, next: NextFunction) {
   try {
     const result = await loginUser(req.body);
     res.json(result);
   } catch (error) {
-    handleAuthError(error, res);
+    next(error);
   }
 }
 
-export async function me(req: Request, res: Response) {
+export async function me(req: Request, res: Response, next: NextFunction) {
   if (!req.user) {
     res.status(401).json({ message: "Authentication required." });
     return;
@@ -45,6 +35,6 @@ export async function me(req: Request, res: Response) {
 
     res.json({ user });
   } catch (error) {
-    handleAuthError(error, res);
+    next(error);
   }
 }

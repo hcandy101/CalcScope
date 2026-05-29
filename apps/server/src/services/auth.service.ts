@@ -103,6 +103,7 @@ function validateName(name: unknown): string | null {
 }
 
 function createToken(user: SafeUser): string {
+  // The JWT stores only identity claims. Sensitive data stays in PostgreSQL.
   return jwt.sign(
     {
       email: user.email
@@ -115,6 +116,19 @@ function createToken(user: SafeUser): string {
   );
 }
 
+export function verifyAuthToken(token: string): AuthTokenPayload & { sub: string } {
+  const decoded = jwt.verify(token, env.jwtSecret) as jwt.JwtPayload & Partial<AuthTokenPayload>;
+
+  if (!decoded.sub || typeof decoded.email !== "string") {
+    throw new AuthError("Invalid authentication token.", 401);
+  }
+
+  return {
+    sub: decoded.sub,
+    email: decoded.email
+  };
+}
+
 function isUniqueViolation(error: unknown): boolean {
   return typeof error === "object" && error !== null && "code" in error && error.code === "23505";
 }
@@ -124,6 +138,7 @@ export async function registerUser(input: {
   password: unknown;
   name?: unknown;
 }): Promise<AuthResult> {
+  // Validation happens before database work so bad input fails quickly and predictably.
   const email = validateEmail(input.email);
   const password = validatePassword(input.password);
   const name = validateName(input.name);
@@ -137,6 +152,7 @@ export async function registerUser(input: {
   let result;
 
   try {
+    // bcrypt adds a unique salt internally, then runs a slow hash. Store the hash, never the password.
     const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
     result = await db.query<AuthUserRow>(
       `INSERT INTO users (email, name, password_hash)

@@ -1,5 +1,6 @@
 import { API_ROUTES } from "@calcscope/shared";
 import { useState } from "react";
+import { EquationInput } from "../components/EquationInput";
 import { useAuth } from "../context/AuthContext";
 import { apiClient } from "../lib/apiClient";
 
@@ -67,6 +68,10 @@ export function DashboardPage() {
             </div>
           </div>
         </section>
+
+        <div className="mt-6">
+          <EquationInput />
+        </div>
       </div>
     </main>
   );

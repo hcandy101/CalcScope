@@ -3,6 +3,7 @@ import {
   EquationValidationError,
   validateEquationExpression
 } from "../utils/equationValidation.js";
+import { generateCoordinates } from "./coordinateGeneration.service.js";
 
 const MAX_POINTS = 5000;
 
@@ -52,18 +53,6 @@ function validateRange(input: unknown): GraphRange {
   return { minX, maxX, step };
 }
 
-function roundCoordinate(value: number): number {
-  return Number(value.toPrecision(12));
-}
-
-function toRealFiniteNumber(value: unknown): number | null {
-  if (typeof value !== "number" || !Number.isFinite(value)) {
-    return null;
-  }
-
-  return roundCoordinate(value);
-}
-
 export function generateGraphPoints(
   input: GenerateGraphPointsRequest
 ): GenerateGraphPointsResponse {
@@ -80,32 +69,10 @@ export function generateGraphPoints(
   }
 
   const range = validateRange(input.range);
-  const points = [];
-  const pointCount = Math.floor((range.maxX - range.minX) / range.step) + 1;
-
-  for (let index = 0; index < pointCount; index += 1) {
-    const x = roundCoordinate(range.minX + index * range.step);
-    let y: number | null = null;
-
-    try {
-      // Each x value is evaluated in a small scope. ln is provided as an alias
-      // for natural log because math.js names that function log by default.
-      y = toRealFiniteNumber(
-        validatedEquation.compiled.evaluate({
-          x,
-          ln: Math.log
-        })
-      );
-    } catch {
-      y = null;
-    }
-
-    points.push({
-      x,
-      y,
-      isValid: y !== null
-    });
-  }
+  const points = generateCoordinates({
+    compiled: validatedEquation.compiled,
+    range
+  });
 
   return {
     expression: validatedEquation.expression,

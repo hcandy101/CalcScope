@@ -48,8 +48,9 @@ function getFunctionName(node: InspectableMathNode): string | undefined {
   return node.fn?.name ?? node.name;
 }
 
-function validateNode(node: MathNode): void {
+function validateNode(node: MathNode, parentNode?: MathNode): void {
   const inspectableNode = node as InspectableMathNode;
+  const inspectableParentNode = parentNode as InspectableMathNode | undefined;
 
   if (!allowedNodeTypes.has(inspectableNode.type)) {
     throw new EquationValidationError(`Unsupported expression part: ${inspectableNode.type}.`);
@@ -57,12 +58,10 @@ function validateNode(node: MathNode): void {
 
   if (inspectableNode.type === "SymbolNode") {
     const symbolName = inspectableNode.name;
+    const isFunctionReference =
+      inspectableParentNode?.type === "FunctionNode" && allowedFunctions.has(symbolName ?? "");
 
-    if (
-      symbolName !== "x" &&
-      !allowedConstants.has(symbolName ?? "") &&
-      !allowedFunctions.has(symbolName ?? "")
-    ) {
+    if (symbolName !== "x" && !allowedConstants.has(symbolName ?? "") && !isFunctionReference) {
       throw new EquationValidationError(`Unsupported symbol "${symbolName}". Use x as the variable.`);
     }
   }
@@ -107,8 +106,8 @@ export function validateEquationExpression(input: unknown): ValidatedEquation {
     throw new EquationValidationError("Expression could not be parsed.");
   }
 
-  node.traverse((currentNode) => {
-    validateNode(currentNode);
+  node.traverse((currentNode, _path, parentNode) => {
+    validateNode(currentNode, parentNode ?? undefined);
   });
 
   return {

@@ -58,6 +58,21 @@ export const apiClient = {
     });
   },
 
+  async postWithToken<TResponse, TBody extends Record<string, unknown>>(
+    path: string,
+    body: TBody,
+    token: string
+  ): Promise<TResponse> {
+    return request<TResponse>(path, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(body)
+    });
+  },
+
   async getWithToken<TResponse>(path: string, token: string): Promise<TResponse> {
     return request<TResponse>(path, {
       headers: {
